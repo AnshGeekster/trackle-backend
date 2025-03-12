@@ -15,8 +15,9 @@ const app = express();
 
 const PORT = process.env.PORT || 8000;
 
+
 const corsOptions = {
-    origin: ['http://localhost:3000', "production-url"], // Allow specific origins
+    origin: ['http://localhost:3000', 'production-url'], // Allow these domains to send cross-origin requests
     methods: ['GET', 'POST', 'PUT', 'PATCH','DELETE','OPTIONS'], 
     allowedHeaders: ["Content-Type", "Authorization"], // Allow necessary headers
     credentials: true, 

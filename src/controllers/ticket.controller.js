@@ -76,26 +76,65 @@ export const getAllTickets = async (req,res)=>{
 }
 
 
-
-export const updateStatus = async (req, res) => { 
-
+export const updateStatus = async (req, res) => {
   try {
     const { ticketId } = req.params;
     const { status } = req.body;
 
+    // Validate status
+    const validStatuses = ["PENDING", "IN_PROGRESS", "COMPLETED"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid status. Allowed values: PENDING, IN_PROGRESS, COMPLETED.",
+      });
+    }
+
+    // Update the ticket status
     const ticket = await prisma.ticket.update({
-      where: {
-        id: ticketId,
-      },
-      data: {
-        status,
-      },
+      where: { id: ticketId },
+      data: { status },
     });
 
-    res.status(200).json({ success: true, message: "Ticket status updated successfully!", ticket });
-  }
-  catch (error) {
+    return res.status(200).json({
+      success: true,
+      message: "Ticket status updated successfully!",
+      ticket,
+    });
+  } catch (error) {
     console.error("Error in updating ticket status:", error);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
   }
+};
+
+
+
+export const getUserTickets = async (req,res)=>{
+
+    try {
+        const { userId } = req.params;
+    
+        const tickets = await prisma.ticket.findMany({
+          where: {
+            userId,
+          },
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
+          },
+        });
+    
+        res.status(200).json({ success: true, tickets });
+      } catch (error) {
+        console.error("Error in fetching user tickets:", error);
+        res.status(500).json({ success: false, error: "Internal server error" });
+      }
+
 }
